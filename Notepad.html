@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HYPHEN  Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Ariel', sans-serif;
+        }
+
+        body {
+            background: url("https://images.unsplash.com/photo-1578450671530-5b6a7c9f32a8?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")no-repeat center center;
+            background-size: cover;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .notes-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgb(235, 196, 196);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            
+        }
+
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Bradley Hand ITC', sans-serif;
+
+        }
+
+        .logo span {
+            color: #3498db;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .note-form {
+            margin-bottom: 30px;
+        }
+
+        .note-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .note-form textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .add-note-btn {
+            padding: 10px 20px;
+            background: #3498db;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-note-btn:hover {
+            background: #2980b9;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .note {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            position: relative;
+        }
+
+        .note-content {
+            color: #2c3e50;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+
+        .note-timestamp {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 480px) {
+            .notes-container {
+                padding: 20px;
+            }
+        }
+      .back-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 75px;
+    height: 75px;
+    background: #83ee32 url('https://w7.pngwing.com/pngs/31/838/png-transparent-graphy-back-button-miscellaneous-photography-trademark-thumbnail.png') no-repeat center;
+    border: none;
+    border-radius: 100%;
+    cursor:     pointer;
+    transition: background 0.3s;
+}
+.back-btn:hover {
+    background: #ffcb3b url('https://w7.pngwing.com/pngs/31/838/png-transparent-graphy-back-button-miscellaneous-photography-trademark-thumbnail.png') no-repeat center;
+}
+    </style>
+</head>
+<body>
+    <div class="notes-container">
+        <div class="logo">
+            <h1>HYPHEN<span>-</span></h1>
+        </div>
+        <h2>Notepad</h2>
+        <div class="note-form">
+            <textarea id="noteInput" placeholder="Write your note here..."></textarea>
+            <div id="noteError" class="error">Note cannot be empty</div>
+            <button class="add-note-btn" onclick="addNote()">Add Note</button>
+        </div>
+        <div class="notes-list" id="notesList">
+            <!-- Notes will be dynamically added here -->
+
+        </div>
+        <button class="back-btn" onclick="window.location.href='index.html'">Back</button> 
+    </div>
+
+    <script>
+        // Load notes from localStorage
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            const notesList = document.getElementById('notesList');
+            notesList.innerHTML = '';
+            notes.forEach((note, index) => {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note';
+                noteElement.innerHTML = `
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-timestamp">Created: ${note.timestamp}</div>
+                    <button class="delete-btn" onclick="deleteNote(${index})">Delete</button>
+                `;
+                notesList.appendChild(noteElement);
+            });
+        }
+
+        // Add a new note
+        function addNote() {
+            const noteInput = document.getElementById('noteInput');
+            const noteError = document.getElementById('noteError');
+            const content = noteInput.value.trim();
+
+            if (!content) {
+                noteError.style.display = 'block';
+                return;
+            }
+
+            noteError.style.display = 'none';
+
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            const timestamp = new Date().toLocaleString();
+            notes.push({ content, timestamp });
+            localStorage.setItem('notes', JSON.stringify(notes));
+
+            noteInput.value = '';
+            loadNotes();
+        }
+
+        // Delete a note
+        function deleteNote(index) {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notes.splice(index, 1);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            loadNotes();
+        }
+
+        // Initialize notes
+        window.onload = loadNotes;
+
+    
+      
+    </script>
+</body>
+</html>
